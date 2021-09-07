@@ -13,7 +13,7 @@ main () {
 	fi
 		for i in $list ; do
 			json=$(curl -Ls "https://a.4cdn.org/$board/thread/$i.json")
-			export name=$(echo "$json" | jq -r '.posts[] | select(.semantic_url) | .semantic_url')
+			export name=$(echo "$json" | jq -r ".posts[] | select(.semantic_url) | \"$board-\(.semantic_url)\"")
 			echo "$name"
 			mkdir -p "$topdir/$name"
 			echo "$json" | jq -r ".posts[] | select(.ext) | select(.ext == \".webp\" or .ext == \".png\" or .ext == \".jpg\") | \"https://i.4cdn.org/$board/\(.tim)\(.ext)\"" \
