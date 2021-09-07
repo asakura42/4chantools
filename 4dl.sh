@@ -2,12 +2,13 @@
 main () {
 	board="${FBOARD:-wg}"
 	keywords="${FKEYWORDS:-comfy,city,neon}"
+	folder="${FFOLDER}"
 	export topdir="${FDIR:-$HOME/Pictures/4chan}"
 	export hashfile="${XDG_DATA_HOME:-$HOME/.local/share}/4picslist.txt"
 
 	ext="| select(.ext == \".webp\" or .ext == \".png\" or .ext == \".jpg\")"
 	case "$1" in
-		-a|a|all|-all) unset ext
+		-a|a|-all|all) unset ext
 			shift ;;
 	esac
 
@@ -25,14 +26,15 @@ main () {
 			json=$(curl -Ls "https://a.4cdn.org/$board/thread/$i.json")
 			export name=$(echo "$json" | jq -r ".posts[] | select(.semantic_url) | \"$board-\(.semantic_url)\"")
 			echo "$name"
-			mkdir -p "$topdir/$name"
+			mkdir -p "${folder:-$topdir/$name}"
+			export folder="${folder:-$topdir/$name}"
 			echo "$json" | jq -r ".posts[] | select(.ext) $ext | \"https://i.4cdn.org/$board/\(.tim)\(.ext)\"" \
 				| xargs -P 10 -I{} -d $'\n' \
-				sh -c 'if ! grep -q $(basename {}) $hashfile ; then curl --create-dirs -LO --progress-bar --output-dir $topdir/$name {} ; basename {} >> $hashfile ; fi'
+				sh -c 'if ! grep -q $(basename {}) $hashfile ; then curl --create-dirs -LO --progress-bar --output-dir $folder {} ; basename {} >> $hashfile ; fi'
 		done
 }
 case "$1" in
-	-h|h|help|-help|--help) echo " FBOARD=jp FKEYWORDS=djt,doujinshi FDIR=$HOME/Pictures sh $(basename "$0") -a
+	-h|h|help|-help|--help) echo " FFOLDER=kek FBOARD=jp FKEYWORDS=djt,doujinshi FDIR=$HOME/Pictures sh $(basename "$0") -a
  (print all vars optionally, default is comfy wallpapers from /wg/)
 
 		or
@@ -41,4 +43,3 @@ case "$1" in
  Read script for full understanding." ;;
 	*) main "$@" ;;
 esac
-
