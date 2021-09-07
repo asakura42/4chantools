@@ -1,6 +1,6 @@
 #!/bin/sh
 main () {
-	board="${FBOARD:-wg}"
+	board="${FBOARDS:-wg,w}"
 	keywords="${FKEYWORDS:-comfy,city,neon}"
 	folder="${FFOLDER}"
 	export topdir="${FDIR:-$HOME/Pictures/4chan}"
@@ -13,28 +13,34 @@ main () {
 	esac
 
 	if [ -z $1 ] ; then
+		boards=$(echo "$board" | tr ',' '\n')
 		keywords=$(echo "$keywords" | tr ',' '\n' | sed 's/^/contains("/;s/$/") or /' | tr -d '\n' | sed 's/ or $//')
-		list=$(curl -Ls "https://a.4cdn.org/$board/catalog.json" | jq -r ".[] | .threads[] | select(.semantic_url | $keywords) | .no")
-		printf "%s %s\n" "$(echo "$list" | sed '/^$/d' | wc -l)" "threads."
-		sleep 1
 	else
-		board=$(echo "$1" | awk -F'/' '{print $4}')
+		boards=$(echo "$1" | awk -F'/' '{print $4}')
 		list=$(echo "$1" | awk -F'/' '{print $6}')
 	fi
-	
+	for b in $boards ; do
+		if [ -z "$list" ] ; then
+			list=$(curl -Ls "https://a.4cdn.org/$b/catalog.json" | jq -r ".[] | .threads[] | select(.semantic_url | $keywords) | .no")
+			printf "%s %s\n" "$(echo "$list" | sed '/^$/d' | wc -l)" "threads on $b board."
+			sleep 1
+		fi
+
 		for i in $list ; do
-			json=$(curl -Ls "https://a.4cdn.org/$board/thread/$i.json")
-			export name=$(echo "$json" | jq -r ".posts[] | select(.semantic_url) | \"$board-\(.semantic_url)\"")
+			json=$(curl -Ls "https://a.4cdn.org/$b/thread/$i.json")
+			export name=$(echo "$json" | jq -r ".posts[] | select(.semantic_url) | \"$b-\(.semantic_url)\"")
 			echo "$name"
 			mkdir -p "${folder:-$topdir/$name}"
-			export folder="${folder:-$topdir/$name}"
-			echo "$json" | jq -r ".posts[] | select(.ext) $ext | \"https://i.4cdn.org/$board/\(.tim)\(.ext)\"" \
+			export ffolder="${folder:-$topdir/$name}"
+			echo "$json" | jq -r ".posts[] | select(.ext) $ext | \"https://i.4cdn.org/$b/\(.tim)\(.ext)\"" \
 				| xargs -P 10 -I{} -d $'\n' \
-				sh -c 'if ! grep -q $(basename {}) $hashfile ; then curl --create-dirs -LO --progress-bar --output-dir $folder {} ; basename {} >> $hashfile ; fi'
+				sh -c 'if ! grep -q $(basename {}) $hashfile ; then curl --create-dirs -LO --progress-bar --output-dir $ffolder {} ; basename {} >> $hashfile ; fi'
 		done
+	unset list
+	done
 }
 case "$1" in
-	-h|h|help|-help|--help) echo " FFOLDER=kek FBOARD=jp FKEYWORDS=djt,doujinshi FDIR=$HOME/Pictures sh $(basename "$0") -a
+	-h|h|help|-help|--help) echo " FFOLDER=kek FBOARDS=jp,a FKEYWORDS=japan,doujinshi FDIR=$HOME/Pictures sh $(basename "$0") -a
  (print all vars optionally, default is comfy wallpapers from /wg/)
 
 		or
