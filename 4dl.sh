@@ -15,7 +15,7 @@ main () {
 	if [ -z $1 ] ; then
 		keywords=$(echo "$keywords" | tr ',' '\n' | sed 's/^/contains("/;s/$/") or /' | tr -d '\n' | sed 's/ or $//')
 		list=$(curl -Ls "https://a.4cdn.org/$board/catalog.json" | jq -r ".[] | .threads[] | select(.semantic_url | $keywords) | .no")
-		printf "%s %s\n" "$(echo "$list" | wc -l)" "threads."
+		printf "%s %s\n" "$(echo "$list" | sed '/^$/d' | wc -l)" "threads."
 		sleep 1
 	else
 		board=$(echo "$1" | awk -F'/' '{print $4}')
