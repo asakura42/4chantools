@@ -1,5 +1,5 @@
 # 4chandl
-simple but powerful 4chan downloader script
+simple but powerful 4chan downloader script. Requires `jq`. If you're average shell enjoyer, send me PR or issue with no-jq workaround.
 
 Usage:
 ```
