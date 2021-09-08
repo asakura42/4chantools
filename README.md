@@ -1,4 +1,14 @@
-# 4chandl
+# 4chantools
+
+## 4dump.sh
+Dump 4chan thread in friendly way
+
+Usage:
+```
+sh ./4dump.sh https://boards.4channel.org/a/thread/123456789
+```
+
+## 4dl.sh
 simple but powerful 4chan downloader script. Requires `jq`. If you're average shell enjoyer, send me PR or issue with no-jq workaround.
 
 Usage:
