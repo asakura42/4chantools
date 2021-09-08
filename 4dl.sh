@@ -1,7 +1,8 @@
 #!/bin/sh
 main () {
 	board="${FBOARDS:-wg,w}"
-	keywords="${FKEYWORDS:-comfy,city,neon}"
+	keywords="${FKEYWORDS:-comfy,city,neon,retro,wave,outrun}"
+	stopkeywords="${FSTOPKEYWORDS:-porn,hentai,nazi,fash,fasci}"
 	folder="${FFOLDER}"
 	export topdir="${FDIR:-$HOME/Pictures/4chan}"
 	export hashfile="${XDG_DATA_HOME:-$HOME/.local/share}/4picslist.txt"
@@ -15,13 +16,14 @@ main () {
 	if [ -z $1 ] ; then
 		boards=$(echo "$board" | tr ',' '\n')
 		keywords=$(echo "$keywords" | tr ',' '\n' | sed 's/^/contains("/;s/$/") or /' | tr -d '\n' | sed 's/ or $//')
+		stopkeywords=$(echo "$stopkeywords" | tr ',' '\n' | sed 's/^/contains("/;s/$/") or /' | tr -d '\n' | sed 's/^/ | (select(.semantic_url | /;s/ or $/ | not))/')
 	else
 		boards=$(echo "$1" | awk -F'/' '{print $4}')
 		list=$(echo "$1" | awk -F'/' '{print $6}')
 	fi
 	for b in $boards ; do
 		if [ -z "$list" ] ; then
-			list=$(curl -Ls "https://a.4cdn.org/$b/catalog.json" | jq -r ".[] | .threads[] | select(.semantic_url | $keywords) | .no")
+			list=$(curl -Ls "https://a.4cdn.org/$b/catalog.json" | jq -r ".[] | .threads[] | select(.semantic_url | $keywords) $stopkeywords | .no")
 			printf "%s %s\n" "$(echo "$list" | sed '/^$/d' | wc -l)" "threads on $b board."
 			sleep 1
 		fi
@@ -40,7 +42,7 @@ main () {
 	done
 }
 case "$1" in
-	-h|h|help|-help|--help) echo " FFOLDER=kek FBOARDS=jp,a FKEYWORDS=japan,doujinshi FDIR=$HOME/Pictures sh $(basename "$0") -a
+	-h|h|help|-help|--help) echo " FFOLDER=folder FBOARDS=jp,a FKEYWORDS=japan,doujinshi FSTOPKEYWORDS=hentai sh $(basename "$0") -a
  (print all vars optionally, default is comfy wallpapers from /wg/)
 
 		or
