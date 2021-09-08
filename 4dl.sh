@@ -16,7 +16,11 @@ main () {
 	if [ -z $1 ] ; then
 		boards=$(echo "$board" | tr ',' '\n')
 		keywords=$(echo "$keywords" | tr ',' '\n' | sed 's/^/contains("/;s/$/") or /' | tr -d '\n' | sed 's/ or $//')
-		stopkeywords=$(echo "$stopkeywords" | tr ',' '\n' | sed 's/^/contains("/;s/$/") or /' | tr -d '\n' | sed 's/^/ | (select(.semantic_url | /;s/ or $/ | not))/')
+		if [ -z "$stopkeywords" ] ; then
+			true
+		else
+			stopkeywords=$(echo "$stopkeywords" | tr ',' '\n' | sed 's/^/contains("/;s/$/") or /' | tr -d '\n' | sed 's/^/ | (select(.semantic_url | /;s/ or $/ | not))/')
+		fi
 	else
 		boards=$(echo "$1" | awk -F'/' '{print $4}')
 		list=$(echo "$1" | awk -F'/' '{print $6}')
