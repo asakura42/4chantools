@@ -13,7 +13,7 @@ simple but powerful 4chan downloader script. Requires `jq`. If you're average sh
 
 Usage:
 ```
-FFOLDER=folder FBOARDS=jp,a FKEYWORDS=japan,doujinshi FSTOPKEYWORDS=' ' sh ./4dl.sh -a
+FDUMP=y FFOLDER=folder FBOARDS=jp,a FKEYWORDS=japan,doujinshi FSTOPKEYWORDS=' ' sh ./4dl.sh -a
 or
 sh ./4dl.sh https://boards.4channel.org/a/thread/1234567889/
 
