@@ -4,7 +4,7 @@ main () {
 	keywords="${FKEYWORDS:-comfy,city,neon,retro,wave,outrun}"
 	stopkeywords="${FSTOPKEYWORDS:-porn,hentai,nazi,fash,fasci}"
 	folder="${FFOLDER}"
-	download="${FDOWNLOAD}"
+	dump="${FDUMP}"
 	export topdir="${FDIR:-$HOME/Pictures/4chan}"
 	export hashfile="${XDG_DATA_HOME:-$HOME/.local/share}/4picslist.txt"
 
@@ -69,7 +69,7 @@ main () {
 			echo "$json" | jq -r ".posts[] | select(.ext) $ext | \"https://i.4cdn.org/$b/\(.tim)\(.ext)\"" \
 				| xargs -P 10 -I{} -d $'\n' \
 				sh -c 'if ! grep -q $(basename {}) $hashfile ; then curl --create-dirs -LO --progress-bar --output-dir $ffolder {} ; basename {} >> $hashfile ; fi'
-			if [ ! -z "$download" ] ; then
+			if [ ! -z "$dump" ] ; then
 				dl "https://boards.4channel.org/$b/thread/$i" "$ffolder/$i.html"
 			fi
 		done
@@ -77,7 +77,7 @@ main () {
 	done
 }
 case "$1" in
-	-h|h|help|-help|--help) echo " FDOWNLOAD=y FFOLDER=folder FBOARDS=jp,a FKEYWORDS=japan,doujinshi FSTOPKEYWORDS=hentai sh $(basename "$0") -a
+	-h|h|help|-help|--help) echo " FDUMP=y FFOLDER=folder FBOARDS=jp,a FKEYWORDS=japan,doujinshi FSTOPKEYWORDS=hentai sh $(basename "$0") -a
  (print all vars optionally, default is comfy wallpapers from /wg/)
 
 		or
